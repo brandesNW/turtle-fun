@@ -1,0 +1,14 @@
+reload
+project
+compile
+project
+package
+cd ..
+package
+exit
+package
+cd ..
+exit
+package
+cd ..
+exit

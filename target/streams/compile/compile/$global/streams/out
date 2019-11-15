@@ -1,0 +1,7 @@
+[0m[[0m[31merror[0m] [0m[0mC:\Users\Owner\NetLogo\extensions\turtle-fun\src\TurtleFunExtension.scala:85:31: unclosed string literal[0m
+[0m[[0m[31merror[0m] [0m[0m	  println(endpoints.mkString(",))[0m
+[0m[[0m[31merror[0m] [0m[0m	                             ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Users\Owner\NetLogo\extensions\turtle-fun\src\TurtleFunExtension.scala:87:7: ')' expected but '}' found.[0m
+[0m[[0m[31merror[0m] [0m[0m      }[0m
+[0m[[0m[31merror[0m] [0m[0m      ^[0m
+[0m[[0m[31merror[0m] [0m[0mtwo errors found[0m

@@ -1,0 +1,90 @@
+import org.nlogo.{ agent, api, core, nvm }
+import core.Syntax._
+import api.ScalaConversions._  // implicits
+import org.nlogo.core.AgentKind
+import scala.collection.mutable.ListBuffer
+
+class TurtleFunExtension extends api.DefaultClassManager {
+  def load(manager: api.PrimitiveManager) { 
+    manager.addPrimitive("link-turtles", LinkTurtles)
+    manager.addPrimitive("find-links", FindLinks)
+  }
+}
+
+object LinkTurtles extends api.Command with nvm.CustomAssembled {
+  override def getSyntax =
+    commandSyntax(right = List(NumberType, CommandBlockType | OptionalType),
+      agentClassString = "O---",
+      blockAgentClassString = Some("-T--"))
+
+  def perform(args: Array[api.Argument], context: api.Context) {
+    // the api package have what we need, so we'll often
+    // be dropping down to the agent and nvm packages
+    val n = args(0).getIntValue
+    val world = context.getAgent.world.asInstanceOf[agent.World]
+    val eContext = context.asInstanceOf[nvm.ExtensionContext]
+    val nvmContext = eContext.nvmContext
+    val agents =
+    new agent.AgentSetBuilder(AgentKind.Turtle,2 *  n)
+
+    var headingIncrement = 13
+     for(i <- 0 until n) {
+      var color = i%13  + 1  // want color in range 1 to 13
+      var heading = 2*i * headingIncrement	   
+     val turtle1 = world.createTurtle(world.turtles, color, heading)
+      //turtle1.colorDoubleUnchecked(red)
+      agents.add(turtle1)
+     // turtle1.heading(heading)
+      heading += headingIncrement
+      eContext.workspace.joinForeverButtons(turtle1)
+
+      val turtle2 = world.createTurtle(world.turtles, color, heading)
+     // turtle2.colorDoubleUnchecked(red)
+      agents.add(turtle2)
+     // turtle2.heading(heading)
+
+      eContext.workspace.joinForeverButtons(turtle2)
+
+    val breed =  world.links
+    val link = world.linkManager.createLink(turtle1, turtle2, breed)
+      heading += headingIncrement
+     // color = (color + 1 )%13  + 1  // want color in range 1 to 13
+    }
+    // if the optional command block wasn't supplied, then there's not
+    // really any point in calling this, but it won't bomb, either
+    nvmContext.runExclusiveJob(agents.build(), nvmContext.ip + 1)
+    // prim._extern will take care of leaving nvm.Context ip in the right place
+  }
+
+  def assemble(a: nvm.AssemblerAssistant) {
+    a.block()
+    a.done()
+  }
+}
+
+
+object FindLinks extends api.Reporter {
+  override def getSyntax =
+    reporterSyntax(right = List(), ret = ListType)
+  def report(args: Array[api.Argument], context: api.Context): AnyRef = {
+
+    val world = context.getAgent.world.asInstanceOf[agent.World]
+    val eContext = context.asInstanceOf[nvm.ExtensionContext]
+    val nvmContext = eContext.nvmContext
+
+    val links = world.links
+    val linksIter = links.agents.iterator
+    var endpointList : ListBuffer[AnyRef] = ListBuffer()
+    while (linksIter.hasNext()){
+         val link = linksIter.next.asInstanceOf[agent.Link]
+	 val t1 = link.end1
+	 val t2 = link.end1
+
+	val endpoints = List(t1.xcor, t1.ycor, t2.xcor, t2.ycor)
+	 // println(endpoints.mkString(","))
+	 endpointList.append(List(t1.xcor, t1.ycor, t2.xcor, t2.ycor))
+      }
+
+      endpointList.toLogoList
+  }
+}
